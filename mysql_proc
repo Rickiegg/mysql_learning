@@ -22,7 +22,11 @@ begin
         leave read_repeat;
     end if;
     set i=i+1;
-    insert into wechat_file_master select i,a.* from chat_nm a;
+    
+    set @sqlStr=concat('insert into wechat_file_master select i,a.* from',chat_nm,'a');
+    prepare stmt from @sqlStr;
+    execute stmt;
+    
     until i=V_num
     end repeat;
     close chat_nm_cur;
