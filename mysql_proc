@@ -1,5 +1,5 @@
-delimiter $$
-create procedure `file_append`()
+create
+    definer = root@localhost procedure file_append()
 begin
     declare i int default 0;
     declare V_num int;
@@ -7,28 +7,39 @@ begin
     declare done int default False;
 
     DECLARE chat_nm_cur CURSOR FOR
-        SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='weixin'
-        and table_name like 'Chat\_%' ;
+        SELECT TABLE_NAME
+        FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = 'weixin'
+          and table_name like 'Chat\_%';
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = true;
 
 
-    SELECT count(TABLE_NAME) FROM information_schema.TABLES WHERE TABLE_SCHEMA='weixin'
-        and table_name like 'Chat\_%' into V_num;
+    SELECT count(TABLE_NAME)
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = 'weixin'
+      and table_name like 'Chat\_%' into V_num;
     open chat_nm_cur;
 
-    read_repeat:repeat
-    fetch chat_nm_cur into chat_nm;
-    if done then
-        leave read_repeat;
-    end if;
-    set i=i+1;
-    
-    set @sqlStr=concat('insert into wechat_file_master select i,a.* from',chat_nm,'a');
-    prepare stmt from @sqlStr;
-    execute stmt;
-    
-    until i=V_num
-    end repeat;
+    read_repeat:
+        repeat
+            fetch chat_nm_cur into chat_nm;
+            if done then
+                leave read_repeat;
+            end if;
+            set i = i + 1;
+
+            set @sqlStr = concat(
+                    'insert into wechat_file_master
+                    (tableName,TableVer,MesSvrID, CreateTime, Message, Status, ImgStatus, MesLocalID, Type, Des)
+                    select "',chat_nm,'",a.* from ',
+                    chat_nm,' a');
+            prepare stmt from @sqlStr;
+            execute stmt;
+
+
+        until i = V_num
+            end repeat;
+            select i;
     close chat_nm_cur;
 end;
-$$
+
