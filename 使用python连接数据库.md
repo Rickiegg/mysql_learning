@@ -18,15 +18,13 @@
     cursor = db.cursor()
     cursor.execute(sql_text) # 执行操作
     data1 = cursor.fetchall()
-   ```
-    
     # 关闭游标 & 数据库连接
-    ```
+
     cursor.close()
     db.close()
     data1
 ```
-1. 用sqlalchemy创建连接引擎，用pandas读取数据，结构为DataFrame（*）
+1. 用sqlalchemy创建连接引擎，用pandas读取数据，结构为DataFrame
 ```
     import sqlalchemy as sql
     engine = sql.create_engine('mysql+pymysql://root:Rimysql2019@localhost/test')  
